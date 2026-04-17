@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetCare AI - 最終完整版</title>
+    <title>PetCare AI - 最終完美版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
@@ -40,20 +40,6 @@
         <div class="flex-1 p-5 overflow-y-auto bg-[#FAF9F6]">
             
             <div v-if="tab === 1" class="space-y-6 animate-fade-in">
-                <div class="bg-stone-100/50 p-4 rounded-2xl border border-stone-200 flex justify-between items-center text-xs">
-                    <div><p class="font-bold text-stone-500 uppercase">{{ t('weather_title') }}</p><p class="text-xl font-bold">{{ weather.temp }}°C {{ weather.desc }}</p></div>
-                    <div class="text-right text-stone-400 leading-tight">{{ weather.advice }}</div>
-                </div>
-
-                <div class="space-y-2">
-                    <h3 class="font-bold text-stone-700 text-sm">📸 {{ t('daily_photo') }}</h3>
-                    <div @click="$refs.dailyPhotoInput.click()" class="w-full aspect-video border-2 border-dashed border-stone-300 rounded-2xl bg-white flex items-center justify-center cursor-pointer overflow-hidden shadow-sm">
-                        <img v-if="dailyPhoto" :src="dailyPhoto" class="w-full h-full object-cover">
-                        <span v-else class="text-stone-300 text-xs">{{ t('click_upload') }}</span>
-                    </div>
-                    <input type="file" ref="dailyPhotoInput" class="hidden" @change="handleDailyPhoto" accept="image/*">
-                </div>
-
                 <div class="bg-white p-4 rounded-2xl border border-stone-100 space-y-3 shadow-sm">
                     <h3 class="font-bold text-stone-700 text-sm">🥣 {{ t('diet_log') }}</h3>
                     <input v-model="diet.eat" type="text" :placeholder="t('placeholder_eat')" class="w-full p-3 bg-stone-50 rounded-xl text-xs outline-none">
@@ -64,7 +50,7 @@
 
             <div v-if="tab === 2" class="space-y-4 animate-fade-in">
                 <h3 class="font-bold text-stone-700 text-sm">🦷 {{ t('ai_scan') }}</h3>
-                <div @click="$refs.fileInput.click()" class="w-full aspect-square border-2 border-dashed border-stone-300 rounded-3xl bg-white flex items-center justify-center cursor-pointer overflow-hidden relative">
+                <div @click="$refs.fileInput.click()" class="w-full aspect-square border-2 border-dashed border-stone-300 rounded-3xl bg-white flex items-center justify-center cursor-pointer overflow-hidden">
                     <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover">
                     <span v-else class="text-stone-300 text-xs text-center">{{ t('upload_scan') }}</span>
                 </div>
@@ -80,7 +66,6 @@
                         <button @click="addDonation" class="bg-white text-[#A67B5B] px-4 py-2 rounded font-bold text-xs">{{ t('add') }}</button>
                     </div>
                 </div>
-
                 <div class="space-y-2">
                     <p class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{{ t('org_list') }}</p>
                     <div class="grid gap-2">
@@ -95,51 +80,59 @@
 
             <div v-if="tab === 4" class="space-y-6 animate-fade-in">
                 <div class="bg-[#FDFBF7] p-4 rounded-2xl border border-[#D2B48C]/30 space-y-4 shadow-sm">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-stone-700 font-bold text-sm">📊 {{ t('weekly_review') }}</h3>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 text-center">
+                    <h3 class="text-stone-700 font-bold text-sm">📊 {{ t('weekly_review') }}</h3>
+                    <div class="grid grid-cols-2 gap-3 text-center text-xs">
                         <div class="bg-white p-3 rounded-xl border border-stone-50">
-                            <p class="text-[10px] text-stone-400">{{ t('diet_done') }}</p>
+                            <p class="text-stone-400">{{ t('diet_done') }}</p>
                             <p class="text-lg font-bold text-stone-600">{{ weeklyStats.dietCount }}</p>
                         </div>
                         <div class="bg-white p-3 rounded-xl border border-stone-50">
-                            <p class="text-[10px] text-stone-400">{{ t('photo_taken') }}</p>
-                            <p class="text-lg font-bold text-stone-600">{{ weeklyStats.photoCount }}</p>
+                            <p class="text-stone-400">NT$</p>
+                            <p class="text-lg font-bold text-stone-600">{{ donationTotal }}</p>
                         </div>
                     </div>
-                    <button class="w-full bg-stone-100 text-stone-400 py-3 rounded-xl text-xs font-bold border border-dashed border-stone-300">
-                        🎬 {{ t('ai_video_ready') }}
-                    </button>
                 </div>
 
-                <div class="bg-red-50 p-4 rounded-2xl border border-red-100 space-y-2">
-                    <h3 class="text-red-700 font-bold text-sm">🆘 {{ t('emergency') }}</h3>
-                    <input v-model="hospitalPhone" @blur="saveSettings" :placeholder="t('emergency_placeholder')" class="w-full p-2 rounded-lg text-xs outline-none shadow-sm">
-                    <a v-if="hospitalPhone" :href="'tel:' + hospitalPhone" class="block w-full bg-red-600 text-white text-center py-3 rounded-xl font-bold text-sm shadow-md">📞 {{ t('call_now') }}</a>
+                <div class="bg-red-50 p-4 rounded-2xl border border-red-100 space-y-3 shadow-md">
+                    <h3 class="text-red-700 font-bold text-sm flex items-center">🚨 {{ t('emergency') }}</h3>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-red-400 font-bold">{{ t('emergency_label') }}</label>
+                        <input 
+                            v-model="hospitalPhone" 
+                            @input="saveEmergencyPhone" 
+                            type="tel"
+                            :placeholder="t('emergency_placeholder')" 
+                            class="w-full p-3 rounded-xl border-2 border-red-100 text-sm outline-none focus:border-red-300 shadow-inner"
+                        >
+                        <a 
+                            v-if="hospitalPhone" 
+                            :href="'tel:' + hospitalPhone" 
+                            class="block w-full bg-red-600 text-white text-center py-4 rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-transform"
+                        >
+                            📞 {{ t('call_now') }}
+                        </a>
+                    </div>
                 </div>
 
-                <div class="flex bg-stone-100 p-1 rounded-xl shadow-inner">
+                <div class="flex bg-stone-100 p-1 rounded-xl shadow-inner mt-4">
                     <button @click="changeLang('zh')" :class="lang === 'zh' ? 'bg-stone-500 text-white' : 'text-stone-400'" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all">中文</button>
                     <button @click="changeLang('en')" :class="lang === 'en' ? 'bg-stone-500 text-white' : 'text-stone-400'" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all">English</button>
                 </div>
 
-                <button @click="clearData" class="w-full text-stone-300 text-[10px] underline">{{ t('clear') }}</button>
+                <button @click="clearData" class="w-full text-stone-300 text-[10px] underline mt-4">{{ t('clear') }}</button>
             </div>
         </div>
     </div>
 
     <script>
-        const { createApp, ref, onMounted, computed } = Vue;
+        const { createApp, ref, onMounted, computed, watch } = Vue;
         createApp({
             setup() {
                 const tab = ref(1);
                 const lang = ref(localStorage.getItem('lang') || 'zh');
                 const petName = ref(localStorage.getItem('petName') || 'My Pet');
                 const petAvatar = ref(localStorage.getItem('petAvatar') || null);
-                const dailyPhoto = ref(null);
                 const diet = ref({ eat: '', drink: '' });
-                const weather = ref({ temp: '--', desc: 'Loading', advice: 'Waiting for data...' });
                 const donationTotal = ref(parseInt(localStorage.getItem('donationTotal') || '0'));
                 const donationInput = ref(null);
                 const hospitalPhone = ref(localStorage.getItem('hospitalPhone') || '');
@@ -148,40 +141,37 @@
                 const i18n = {
                     zh: {
                         slogan: '守護每一天的溫馨', home: '生活', health: '健檢', charity: '愛心', settings: '設定',
-                        weather_title: '氣象預報', daily_photo: '今日萌照', click_upload: '點擊上傳',
                         diet_log: '飲食登記', placeholder_eat: '吃了什麼？', placeholder_drink: '喝了多少？',
                         save_btn: '儲存日記', ai_scan: 'AI 齒檢', upload_scan: '上傳照片',
                         donation_total: '本月累計捐款', add: '紀錄', org_list: '支持機構 (點擊跳轉官網)',
-                        emergency: '緊急聯絡', emergency_placeholder: '醫院電話', call_now: '立即撥打',
-                        clear: '清除快取', weekly_review: '一週回顧儀表板', diet_done: '完成登記',
-                        photo_taken: '拍攝照片', ai_video_ready: 'AI 成長回顧影片生成中',
+                        emergency: '緊急撥打設定', emergency_label: '在此輸入醫院電話，系統將自動儲存', emergency_placeholder: '例如：0227001234', 
+                        call_now: '發生緊急狀況，點此撥號', clear: '清除快取', weekly_review: '一週回顧儀表板', diet_done: '完成登記'
                     },
                     en: {
                         slogan: 'Cherish every moment', home: 'Home', health: 'Health', charity: 'Charity', settings: 'Settings',
-                        weather_title: 'Weather', daily_photo: 'Daily Photo', click_upload: 'Upload',
                         diet_log: 'Diet Log', placeholder_eat: 'What to eat?', placeholder_drink: 'Water?',
                         save_btn: 'Save', ai_scan: 'AI Scan', upload_scan: 'Upload',
-                        donation_total: 'Monthly Donation', add: 'Add', org_list: 'Organizations (Click to visit)',
-                        emergency: 'Emergency', emergency_placeholder: 'Hospital Phone', call_now: 'Call Now',
-                        clear: 'Clear', weekly_review: 'Weekly Review', diet_done: 'Diet Logs',
-                        photo_taken: 'Photos Taken', ai_video_ready: 'AI Video Generating',
+                        donation_total: 'Monthly Donation', add: 'Add', org_list: 'Organizations',
+                        emergency: 'Emergency Call', emergency_label: 'Enter phone number, saved automatically', emergency_placeholder: 'e.g. 0227001234', 
+                        call_now: 'EMERGENCY: Click to Call', clear: 'Clear', weekly_review: 'Weekly Dashboard', diet_done: 'Diet Logs'
                     }
                 };
 
                 const t = (key) => i18n[lang.value][key];
                 const changeLang = (l) => { lang.value = l; localStorage.setItem('lang', l); };
 
-                // 捐款機構連結
+                // 緊急電話儲存邏輯 (即時儲存)
+                const saveEmergencyPhone = () => {
+                    localStorage.setItem('hospitalPhone', hospitalPhone.value);
+                };
+
                 const charityOrgs = [
                     { name: '台灣動物緊急救援小組', icon: '🚑', url: 'https://www.savedogs.org' },
                     { name: '惠光導盲犬教育基金會', icon: '🦮', url: 'https://www.guidedog.org.tw' },
-                    { name: '台灣防止虐待動物協會', icon: '⚖️', url: 'https://www.spca.org.tw' }
+                    { name: '流浪動物花園協會', icon: '🏡', url: 'http://www.doghome.org.tw' }
                 ];
 
-                const weeklyStats = computed(() => ({
-                    dietCount: historyLogs.value.length,
-                    photoCount: dailyPhoto.value ? 1 : 0
-                }));
+                const weeklyStats = computed(() => ({ dietCount: historyLogs.value.length }));
 
                 const saveLog = () => {
                     if (!diet.value.eat) return;
@@ -203,20 +193,11 @@
                     reader.readAsDataURL(e.target.files[0]);
                 };
 
-                const handleDailyPhoto = (e) => {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => { dailyPhoto.value = ev.target.result; };
-                    reader.readAsDataURL(e.target.files[0]);
-                };
-
                 const imagePreview = ref(null);
                 const handleFileUpload = (e) => { imagePreview.value = URL.createObjectURL(e.target.files[0]); };
-                const saveSettings = () => localStorage.setItem('hospitalPhone', hospitalPhone.value);
                 const clearData = () => { localStorage.clear(); location.reload(); };
 
-                onMounted(() => { setTimeout(() => { weather.value = { temp: 26, desc: 'Fine', advice: 'Good for walk!' }; }, 800); });
-
-                return { tab, lang, petName, petAvatar, dailyPhoto, diet, weather, t, changeLang, charityOrgs, donationTotal, donationInput, hospitalPhone, weeklyStats, imagePreview, saveLog, addDonation, handleAvatarUpload, handleDailyPhoto, handleFileUpload, saveSettings, clearData };
+                return { tab, lang, petName, petAvatar, diet, t, changeLang, charityOrgs, donationTotal, donationInput, hospitalPhone, weeklyStats, imagePreview, saveLog, addDonation, handleAvatarUpload, handleFileUpload, clearData, saveEmergencyPhone };
             }
         }).mount('#app');
     </script>

@@ -3,181 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetDental AI - 智慧寵物管家</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>PetCare AI - 個人化版</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
-        :root { --main-bg: #FDFBF7; --earth-brown: #8D6E63; --dark-brown: #5D4037; }
-        body { font-family: 'Noto+Sans+TC', sans-serif; background-color: var(--main-bg); color: var(--dark-brown); margin: 0; padding-bottom: 50px; }
-        
-        /* 頁首設計 */
-        .banner-container { height: 250px; position: relative; width: 100%; overflow: hidden; }
-        .banner-img { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* 浮動 Tab Icons (放在圖片右下方) */
-        .tab-overlay { position: absolute; bottom: 45px; right: 15px; display: flex; gap: 10px; z-index: 30; }
-        .tab-icon { background: rgba(255, 255, 255, 0.9); width: 42px; height: 42px; border-radius: 12px; 
-                    display: flex; items-center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-                    color: var(--earth-brown); transition: 0.3s; cursor: pointer; border: none; }
-        .tab-icon.active { background: var(--earth-brown); color: white; }
-
-        /* 圓弧銜接內容區 */
-        .main-content { position: relative; margin-top: -35px; border-top-left-radius: 35px; border-top-right-radius: 35px; 
-                        background: var(--main-bg); padding: 25px 20px; min-height: 500px; z-index: 20; }
-
-        /* 日期選單橫滑 */
-        .date-slider { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; scrollbar-width: none; }
-        .date-slider::-webkit-scrollbar { display: none; }
-        .date-item { min-width: 55px; text-align: center; padding: 10px; border-radius: 18px; background: white; border: 1px solid #F5F1EE; }
-        .date-item.active { background: var(--earth-brown); color: white; border-color: var(--earth-brown); }
-
-        /* 卡片設計 */
-        .app-card { background: white; border-radius: 22px; padding: 18px; margin-bottom: 16px; 
-                    box-shadow: 0 4px 15px rgba(141, 110, 99, 0.05); }
-        .fab { position: fixed; bottom: 30px; right: 20px; width: 56px; height: 56px; background: var(--earth-brown); 
-               border-radius: 50%; color: white; display: flex; items-center; justify-content: center; font-size: 20px; 
-               box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100; cursor: pointer; }
-    </style>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
-<body class="max-w-md mx-auto shadow-2xl">
-
-    <div id="app">
-        <header class="banner-container">
-            <img src="XXX" alt="Banner" class="banner-img" onerror="this.src='https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&w=1920&q=80'">
-            <div class="tab-overlay">
-                <button class="tab-icon" :class="{active: currentTab === 'record'}" @click="currentTab = 'record'"><i class="fa-solid fa-calendar-check"></i></button>
-                <button class="tab-icon" :class="{active: currentTab === 'scan'}" @click="currentTab = 'scan'"><i class="fa-solid fa-camera"></i></button>
-                <button class="tab-icon" :class="{active: currentTab === 'donate'}" @click="currentTab = 'donate'"><i class="fa-solid fa-heart"></i></button>
-                <button class="tab-icon" :class="{active: currentTab === 'setting'}" @click="currentTab = 'setting'"><i class="fa-solid fa-user-gear"></i></button>
+<body class="bg-gray-100">
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-lg flex flex-col">
+        
+        <div class="p-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center space-x-4">
+            <div @click="$refs.avatarInput.click()" class="relative group cursor-pointer">
+                <div class="w-20 h-20 rounded-full border-4 border-white overflow-hidden bg-white shadow-inner flex items-center justify-center text-gray-300">
+                    <img v-if="petAvatar" :src="petAvatar" class="w-full h-full object-cover">
+                    <svg v-else class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold">更換</div>
             </div>
-        </header>
-
-        <main class="main-content">
             
-            <div v-if="currentTab === 'record'">
-                <div class="flex items-center gap-3 mb-6 bg-white p-4 rounded-2xl shadow-sm">
-                    <i class="fa-solid fa-sun text-yellow-500 text-2xl"></i>
-                    <div>
-                        <span class="text-lg font-bold">26°C</span>
-                        <p class="text-[10px] text-gray-400">今日天氣晴朗，適合帶毛孩出門</p>
-                    </div>
-                </div>
-
-                <div class="date-slider">
-                    <div v-for="d in dates" :key="d.num" class="date-item" :class="{active: selectedDate === d.num}" @click="selectedDate = d.num">
-                        <span class="block text-[11px] font-bold opacity-70">{{ d.day }}</span>
-                        <span class="text-lg font-bold">{{ d.num }}</span>
-                    </div>
-                </div>
-
-                <div class="space-y-4 mt-4">
-                    <div class="app-card border-l-4 border-[#8D6E63]">
-                        <div class="flex justify-between text-[10px] text-gray-400 mb-1">
-                            <span><i class="fa-solid fa-utensils mr-1"></i> 美食</span>
-                            <span>08:30 AM</span>
-                        </div>
-                        <h4 class="font-bold">早午餐：雞肉配方飼料</h4>
-                        <p class="text-xs text-gray-500 mt-1">食慾良好，水分補充充足。</p>
-                    </div>
-                    <div class="app-card border-l-4 border-blue-300">
-                        <div class="flex justify-between text-[10px] text-gray-400 mb-1">
-                            <span><i class="fa-solid fa-tree mr-1"></i> 景點</span>
-                            <span>04:00 PM</span>
-                        </div>
-                        <h4 class="font-bold">社區公園放風</h4>
-                        <p class="text-xs text-gray-500 mt-1">進行了 30 分鐘的跑步訓練。</p>
-                    </div>
-                </div>
+            <input type="file" ref="avatarInput" class="hidden" @change="handleAvatarUpload" accept="image/*">
+            
+            <div class="flex-1">
+                <input v-model="petName" @blur="savePetConfig" type="text" placeholder="輸入毛小孩名字" class="text-2xl font-bold bg-transparent border-b border-transparent hover:border-white focus:border-white focus:outline-none w-full p-1 -ml-1">
+                <p class="text-xs text-blue-100 mt-1">健康記錄已開啟</p>
             </div>
-
-            <div v-if="currentTab === 'scan'" class="text-center py-4">
-                <div class="app-card p-10">
-                    <div class="w-20 h-20 bg-[#FDFBF7] rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-[#8D6E63]">
-                        <i class="fa-solid fa-magnifying-glass-chart text-[#8D6E63] text-2xl"></i>
-                    </div>
-                    <h3 class="font-bold text-xl mb-2">AI 智慧識別</h3>
-                    <p class="text-sm text-gray-400 mb-8">分析牙齦炎與牙結石覆蓋率</p>
-                    <button @click="doScan" class="w-full bg-[#8D6E63] text-white py-4 rounded-2xl font-bold shadow-lg">上傳照片並診斷</button>
-                </div>
-
-                <div v-if="scanResult" class="mt-6 animate-pulse">
-                    <div v-if="scanResult.level === 'severe'" class="app-card bg-red-50 border border-red-100">
-                        <p class="text-red-600 font-bold mb-2">檢測結果：建議就醫</p>
-                        <p class="text-xs text-gray-600 mb-4">發現嚴重結石，請諮詢合作寵物醫院。</p>
-                        <button class="text-xs bg-red-600 text-white px-4 py-2 rounded-full">查看附近醫院</button>
-                    </div>
-                    <div v-else class="app-card bg-green-50 border border-green-100">
-                        <p class="text-green-600 font-bold mb-2">檢測結果：狀況良好</p>
-                        <p class="text-xs text-gray-600 mb-4">建議搭配潔牙骨與特殊配方飼料。</p>
-                        <button class="text-xs bg-green-600 text-white px-4 py-2 rounded-full">前往推薦商城</button>
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="currentTab === 'donate'">
-                <div class="bg-[#8D6E63] p-8 rounded-[30px] text-white shadow-xl mb-6">
-                    <p class="text-xs opacity-70">累計幫助浪浪金額</p>
-                    <h2 class="text-4xl font-bold mt-1">$ 3,520</h2>
-                </div>
-                <h4 class="font-bold mb-4">近期捐款紀錄</h4>
-                <div class="app-card flex justify-between items-center">
-                    <p class="text-sm font-medium">浪貓牙科義診贊助</p>
-                    <span class="text-[#8D6E63] font-bold">+$100</span>
-                </div>
-            </div>
-
-            <div v-if="currentTab === 'setting'">
-                <div class="app-card flex items-center gap-4 mb-4">
-                    <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center text-[#8D6E63] text-xl">
-                        <i class="fa-solid fa-dog"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-lg">毛孩：多多</h4>
-                        <p class="text-xs text-gray-400">柯基犬 · 2歲 · 男生</p>
-                    </div>
-                </div>
-                <div class="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-                    <div class="flex justify-between items-center text-sm border-b pb-2">
-                        <span>匯率參考 (TWD/JPY)</span>
-                        <span class="font-bold">0.21</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span>緊急醫療聯絡</span>
-                        <i class="fa-solid fa-phone text-[#8D6E63]"></i>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-
-        <div class="fab" @click="alert('新增健康紀錄/行程')">
-            <i class="fa-solid fa-plus"></i>
         </div>
+
+        <div class="flex border-b">
+            <button @click="tab = 1" :class="tab === 1 ? 'border-blue-500 text-blue-600' : 'border-transparent'" class="flex-1 py-4 text-center border-b-2 font-bold">寵物生活</button>
+            <button @click="tab = 2" :class="tab === 2 ? 'border-blue-500 text-blue-600' : 'border-transparent'" class="flex-1 py-4 text-center border-b-2 font-bold">牙齒健檢</button>
+        </div>
+
+        <div v-if="tab === 1" class="p-4 space-y-6">
+            <div class="bg-blue-50 p-4 rounded-xl shadow-sm">
+                <h3 class="text-sm text-blue-500 font-bold mb-2">今日天氣預測</h3>
+                <div v-if="weather" class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold">{{ weather.temp }}°C</div>
+                        <div class="text-gray-600">{{ weather.description }}</div>
+                    </div>
+                    <div class="text-right text-xs text-blue-400">
+                        {{ weather.advice }}
+                    </div>
+                </div>
+                <div v-else class="animate-pulse flex space-x-4">獲取天氣中...</div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="font-bold text-gray-700">飲食登記</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500">吃了什麼？</label>
+                        <input v-model="diet.eat" type="text" placeholder="例如：乾乾 50g" class="w-full border rounded-lg p-2 mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500">喝了多少？</label>
+                        <input v-model="diet.drink" type="text" placeholder="例如：水 200ml" class="w-full border rounded-lg p-2 mt-1">
+                    </div>
+                    <button @click="saveLog" class="w-full bg-blue-500 text-white py-2 rounded-lg font-bold">儲存紀錄</button>
+                </div>
+                
+                <div v-if="history.length > 0" class="mt-4">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase">最近紀錄</h4>
+                    <ul class="text-sm divide-y">
+                        <li v-for="item in history.slice(-3)" class="py-2 flex justify-between">
+                            <span>{{ item.eat }}</span>
+                            <span class="text-gray-400">{{ item.time }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="tab === 2" class="p-4 flex flex-col items-center">
+            <h3 class="font-bold text-gray-700 mb-4 w-full text-left">AI 牙齒分析</h3>
+            
+            <div @click="$refs.fileInput.click()" class="w-full h-64 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer overflow-hidden bg-gray-50 hover:border-blue-300 transition-colors">
+                <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover">
+                <div v-else class="text-gray-400 text-center p-4">
+                    <p class="text-4xl mb-2">+</p>
+                    <p class="text-sm">上傳寵物牙齒照片</p>
+                    <p class="text-xs mt-1 text-gray-300">（上傳後將獲得 AI 診斷建議）</p>
+                </div>
+                <input type="file" ref="fileInput" class="hidden" @change="handleFileUpload" accept="image/*">
+            </div>
+
+            <div v-if="imagePreview" class="mt-6 w-full space-y-4 animate-fade-in">
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <p class="text-yellow-700 font-bold">AI 診斷建議：</p>
+                    <p class="text-sm text-yellow-600 mt-1">
+                        照片顯示齒齦邊緣略微發紅，建議增加刷牙頻率。若持續紅腫，請諮詢獸醫師。
+                    </p>
+                </div>
+                <button class="w-full border border-blue-500 text-blue-500 py-2 rounded-lg text-sm font-bold hover:bg-blue-50">尋找附近獸醫</button>
+            </div>
+            
+            <div v-else class="mt-8 text-gray-300 text-sm italic">
+                安全提示：上傳照片後，AI 將分析健康狀況。此建議僅供參考，不能替代專業獸醫診斷。
+            </div>
+        </div>
+
     </div>
 
     <script>
-        const { createApp, ref } = Vue
+        const { createApp, ref, onMounted } = Vue;
+
         createApp({
             setup() {
-                const currentTab = ref('record')
-                const selectedDate = ref(17)
-                const scanResult = ref(null)
+                const tab = ref(1);
+                
+                // 個人化數據 (初始化時從 LocalStorage 讀取)
+                const petName = ref(localStorage.getItem('petName') || '我的毛小孩');
+                const petAvatar = ref(localStorage.getItem('petAvatar') || null);
+                
+                const weather = ref(null);
+                const diet = ref({ eat: '', drink: '' });
+                const history = ref(JSON.parse(localStorage.getItem('petLogs') || '[]'));
+                const imagePreview = ref(null);
 
-                const dates = [
-                    { day: 'Wed', num: 15 }, { day: 'Thu', num: 16 }, { day: 'Fri', num: 17 }, 
-                    { day: 'Sat', num: 18 }, { day: 'Sun', num: 19 }, { day: 'Mon', num: 20 }
-                ]
+                // 模擬獲取天氣
+                const fetchWeather = () => {
+                    setTimeout(() => {
+                        weather.value = {
+                            temp: 28,
+                            description: '晴時多雲',
+                            advice: '天氣舒適，適合帶毛孩出門散步！'
+                        };
+                    }, 1000);
+                };
 
-                const doScan = () => {
-                    const isSevere = Math.random() > 0.5;
-                    scanResult.value = { level: isSevere ? 'severe' : 'mild' }
-                }
+                // 新增：處理頭貼上傳
+                const handleAvatarUpload = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
 
-                return { currentTab, dates, selectedDate, scanResult, doScan }
+                    // 1. 為了能永久儲存，需要將圖片轉為 Base64 字符串
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        petAvatar.value = event.target.result; // 在介面上顯示
+                        savePetConfig(); // 儲存到 LocalStorage
+                    };
+                    reader.readAsDataURL(file); // 開始轉換
+                };
+
+                // 新增：儲存毛小孩名字與頭貼
+                const savePetConfig = () => {
+                    localStorage.setItem('petName', petName.value);
+                    if (petAvatar.value) {
+                        localStorage.setItem('petAvatar', petAvatar.value); // 儲存 Base64 字符串
+                    }
+                    console.log('配置已儲存');
+                };
+
+                const saveLog = () => {
+                    if (!diet.value.eat && !diet.value.drink) return;
+                    const newLog = {
+                        eat: diet.value.eat || '未填寫',
+                        drink: diet.value.drink || '未填寫',
+                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    };
+                    history.value.push(newLog);
+                    localStorage.setItem('petLogs', JSON.stringify(history.value));
+                    diet.value = { eat: '', drink: '' };
+                };
+
+                const handleFileUpload = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        imagePreview.value = URL.createObjectURL(file); // 健檢照片只需臨時顯示
+                    }
+                };
+
+                onMounted(fetchWeather);
+
+                return { 
+                    tab, 
+                    petName, petAvatar, 
+                    weather, diet, history, imagePreview, 
+                    handleAvatarUpload, savePetConfig, 
+                    saveLog, handleFileUpload 
+                };
             }
-        }).mount('#app')
+        }).mount('#app');
     </script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+    </style>
 </body>
 </html>

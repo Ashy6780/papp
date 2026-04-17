@@ -3,38 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetCare AI - Multilingual</title>
+    <title>PetCare AI - 溫馨毛孩日記</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        :root { --color-beige: #F5F1E9; --color-latte: #D2B48C; --color-earth: #A67B5B; --color-dark: #6F4E37; }
+        :root {
+            --color-beige: #F5F1E9;
+            --color-latte: #D2B48C;
+            --color-earth: #A67B5B;
+            --color-dark: #6F4E37;
+        }
         body { background-color: var(--color-beige); color: var(--color-dark); font-family: sans-serif; }
         .bg-earth-gradient { background: linear-gradient(135deg, #D2B48C 0%, #A67B5B 100%); }
         .tab-active { color: var(--color-earth); border-bottom: 3px solid var(--color-earth); }
-        .btn-earth { background-color: var(--color-earth); color: white; }
-        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
-        .animate-scan { animation: scan 2s linear infinite; position: absolute; width: 100%; height: 2px; background: #A67B5B; box-shadow: 0 0 10px #A67B5B; }
+        .btn-earth { background-color: var(--color-earth); color: white; transition: all 0.2s; }
+        .btn-earth:active { transform: scale(0.98); opacity: 0.9; }
+        
+        /* 掃描動畫 */
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+        .animate-scan { 
+            animation: scan 2s linear infinite; 
+            position: absolute; left: 0; width: 100%; height: 2px; 
+            background: #A67B5B; box-shadow: 0 0 10px #A67B5B; 
+        }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
     <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl flex flex-col border-x border-stone-200">
         
-        <div class="p-6 bg-earth-gradient text-white flex items-center space-x-4">
-            <div @click="$refs.avatarInput.click()" class="w-16 h-16 rounded-full border-2 border-white/40 overflow-hidden bg-stone-100/20 flex items-center justify-center cursor-pointer shadow-inner relative">
+        <div class="p-6 bg-earth-gradient text-white flex items-center space-x-4 shadow-md">
+            <div @click="$refs.avatarInput.click()" class="w-16 h-16 rounded-full border-2 border-white/40 overflow-hidden bg-stone-100/20 flex items-center justify-center backdrop-blur-sm cursor-pointer shadow-inner relative group">
                 <img v-if="petAvatar" :src="petAvatar" class="w-full h-full object-cover">
                 <span v-else class="text-2xl">🐶</span>
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px]">{{ t('change') }}</div>
             </div>
             <input type="file" ref="avatarInput" class="hidden" @change="handleAvatarUpload" accept="image/*">
             <div class="flex-1">
-                <h2 class="text-xl font-bold">{{ petName }}</h2>
-                <p class="text-xs opacity-90">{{ t('slogan') }}</p>
+                <h2 class="text-xl font-bold tracking-wide">{{ petName }}</h2>
+                <p class="text-xs opacity-90 font-light italic">{{ t('slogan') }}</p>
             </div>
         </div>
 
-        <div class="flex border-b bg-stone-50">
-            <button v-for="(label, idx) in ['home', 'health', 'charity', 'settings']" @click="tab = idx + 1" :class="tab === idx + 1 ? 'tab-active' : 'text-stone-400 border-transparent'" class="flex-1 py-3 text-[10px] font-bold">
+        <div class="flex border-b bg-stone-50 overflow-x-auto scrollbar-hide">
+            <button v-for="(label, idx) in ['home', 'health', 'charity', 'settings']" @click="tab = idx + 1" :class="tab === idx + 1 ? 'tab-active' : 'text-stone-400 border-transparent'" class="flex-1 py-3 px-1 text-center text-[10px] font-bold transition-all">
                 <div class="text-lg">{{ ['🏠','🦴','🐾','🦮'][idx] }}</div><div>{{ t(label) }}</div>
             </button>
         </div>
@@ -44,34 +62,44 @@
             <div v-if="tab === 1" class="space-y-6 animate-fade-in">
                 <div class="bg-stone-100/50 p-4 rounded-2xl border border-stone-200 flex justify-between items-center">
                     <div>
-                        <p class="text-[10px] text-stone-500 font-bold uppercase">{{ t('weather_title') }}</p>
-                        <p class="text-xl font-bold text-stone-700">{{ weather.temp }}°C <span class="text-sm font-normal">{{ weather.desc }}</span></p>
+                        <p class="text-[10px] text-stone-500 font-bold uppercase tracking-wider">{{ t('weather_title') }}</p>
+                        <p class="text-xl font-bold text-stone-700">{{ weather.temp }}°C <span class="text-sm font-normal ml-1">{{ weather.desc }}</span></p>
                     </div>
-                    <div class="text-right text-[10px] text-stone-400">{{ weather.advice }}</div>
+                    <div class="text-right text-[10px] text-stone-400 leading-tight">{{ weather.advice }}</div>
                 </div>
 
                 <div class="space-y-2">
                     <h3 class="font-bold text-stone-700 text-sm">📸 {{ t('daily_photo') }}</h3>
-                    <div @click="$refs.dailyPhotoInput.click()" class="w-full aspect-video border-2 border-dashed border-stone-300 rounded-2xl bg-white flex items-center justify-center cursor-pointer overflow-hidden">
+                    <div @click="$refs.dailyPhotoInput.click()" class="w-full aspect-video border-2 border-dashed border-stone-300 rounded-2xl bg-white flex items-center justify-center cursor-pointer overflow-hidden shadow-sm">
                         <img v-if="dailyPhoto" :src="dailyPhoto" class="w-full h-full object-cover">
-                        <span v-else class="text-stone-300 text-xs">{{ t('click_upload') }}</span>
+                        <div v-else class="text-stone-300 text-sm flex flex-col items-center">
+                            <span class="text-2xl mb-1">📷</span>
+                            <span class="text-xs">{{ t('click_upload') }}</span>
+                        </div>
                     </div>
                     <input type="file" ref="dailyPhotoInput" class="hidden" @change="handleDailyPhoto" accept="image/*">
                 </div>
 
-                <div class="bg-white p-4 rounded-2xl border border-stone-100 space-y-3">
+                <div class="bg-white p-4 rounded-2xl border border-stone-100 space-y-3 shadow-sm">
                     <h3 class="font-bold text-stone-700 text-sm">🥣 {{ t('diet_log') }}</h3>
                     <input v-model="diet.eat" type="text" :placeholder="t('placeholder_eat')" class="w-full p-3 bg-stone-50 rounded-xl text-xs outline-none">
                     <input v-model="diet.drink" type="text" :placeholder="t('placeholder_drink')" class="w-full p-3 bg-stone-50 rounded-xl text-xs outline-none">
-                    <button @click="saveLog" class="w-full btn-earth py-3 rounded-xl font-bold text-sm">{{ t('save_btn') }}</button>
+                    <button @click="saveLog" class="w-full btn-earth py-3 rounded-xl font-bold text-sm shadow-md">{{ t('save_btn') }}</button>
                 </div>
             </div>
 
             <div v-if="tab === 2" class="space-y-6 animate-fade-in flex flex-col items-center">
-                <h3 class="w-full font-bold text-stone-700 text-sm">🦷 {{ t('ai_scan') }}</h3>
-                <div @click="$refs.fileInput.click()" class="w-full aspect-square border-2 border-dashed border-stone-300 rounded-3xl bg-white flex items-center justify-center cursor-pointer overflow-hidden relative shadow-sm">
+                <div class="w-full">
+                    <h3 class="font-bold text-stone-700 text-sm">🦷 {{ t('ai_scan') }}</h3>
+                    <p class="text-[10px] text-stone-400">{{ t('upload_scan') }}</p>
+                </div>
+
+                <div @click="$refs.fileInput.click()" class="w-full aspect-square border-2 border-dashed border-stone-300 rounded-3xl bg-white flex items-center justify-center cursor-pointer overflow-hidden shadow-sm relative">
                     <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover">
-                    <span v-else class="text-stone-300 text-xs">{{ t('upload_scan') }}</span>
+                    <div v-else class="text-stone-300 text-center">
+                        <p class="text-4xl mb-2">🔍</p>
+                        <p class="text-xs">{{ t('upload_scan') }}</p>
+                    </div>
                     <div v-if="isScanning" class="absolute inset-0 bg-stone-800/20 flex items-center justify-center">
                         <div class="animate-scan"></div>
                         <span class="text-white text-xs font-bold">AI Analyzing...</span>
@@ -80,12 +108,19 @@
                 <input type="file" ref="fileInput" class="hidden" @change="handleFileUpload" accept="image/*">
 
                 <div v-if="analysisResult && !isScanning" class="w-full space-y-4">
-                    <div class="bg-white p-4 rounded-2xl border border-stone-200">
-                        <div class="flex justify-between items-center mb-1">
+                    <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
                             <span class="text-stone-700 font-bold text-sm">{{ t('result') }}: {{ analysisResult.status }}</span>
                             <span :class="analysisResult.color" class="text-[10px] px-2 py-1 rounded-full text-white">{{ analysisResult.level }}</span>
                         </div>
-                        <p class="text-xs text-stone-500">{{ analysisResult.desc }}</p>
+                        <p class="text-xs text-stone-500 leading-relaxed">{{ analysisResult.desc }}</p>
+                    </div>
+                    <div class="bg-[#FDFBF7] p-4 rounded-2xl border border-[#D2B48C]/30 space-y-2">
+                        <p class="text-xs font-bold text-stone-700">✨ {{ t('recommend_plan') }}</p>
+                        <div class="grid grid-cols-2 gap-2 text-[10px]">
+                            <div class="bg-white p-2 rounded-lg border border-stone-50"><p class="text-stone-400">Product</p><p class="font-bold">{{ analysisResult.product }}</p></div>
+                            <div class="bg-white p-2 rounded-lg border border-stone-50"><p class="text-stone-400">Plan</p><p class="font-bold">{{ analysisResult.plan }}</p></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -96,13 +131,14 @@
                     <div class="text-3xl font-bold mt-1">NT$ {{ donationTotal }}</div>
                     <div class="mt-4 flex space-x-2">
                         <input v-model.number="donationInput" type="number" class="flex-1 p-2 rounded text-stone-800 text-xs outline-none">
-                        <button @click="addDonation" class="bg-white text-stone-600 px-4 py-2 rounded font-bold text-xs">{{ t('add') }}</button>
+                        <button @click="addDonation" class="bg-white text-[#A67B5B] px-4 py-2 rounded font-bold text-xs">{{ t('add') }}</button>
                     </div>
                 </div>
                 <div class="space-y-2">
                     <p class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{{ t('org_list') }}</p>
-                    <div v-for="org in charityOrgs" class="flex items-center p-3 bg-white border border-stone-100 rounded-xl text-[11px] font-bold">
-                        <span class="mr-3">{{ org.icon }}</span>{{ org.name }}
+                    <div v-for="org in charityOrgs" class="flex items-center p-3 bg-white border border-stone-100 rounded-xl shadow-sm">
+                        <div class="w-8 h-8 bg-stone-50 rounded-full flex items-center justify-center mr-3 text-sm">{{ org.icon }}</div>
+                        <div class="flex-1 text-[11px] font-bold text-stone-700">{{ org.name }}</div>
                     </div>
                 </div>
             </div>
@@ -111,16 +147,24 @@
                 <div class="bg-stone-100/50 p-4 rounded-2xl border border-stone-200">
                     <h3 class="text-stone-700 font-bold mb-3 text-sm">🌐 {{ t('lang_setting') }}</h3>
                     <div class="flex bg-white p-1 rounded-xl shadow-inner">
-                        <button @click="lang = 'zh'" :class="lang === 'zh' ? 'bg-stone-500 text-white' : 'text-stone-400'" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all">中文</button>
-                        <button @click="lang = 'en'" :class="lang === 'en' ? 'bg-stone-500 text-white' : 'text-stone-400'" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all">English</button>
+                        <button @click="changeLang('zh')" :class="lang === 'zh' ? 'bg-stone-500 text-white' : 'text-stone-400'" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all">中文</button>
+                        <button @click="changeLang('en')" :class="lang === 'en' ? 'bg-stone-500 text-white' : 'text-stone-400'" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all">English</button>
                     </div>
                 </div>
 
                 <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
                     <h3 class="text-red-700 font-bold mb-3 text-sm">🆘 {{ t('emergency') }}</h3>
-                    <input v-model="hospitalPhone" @blur="saveSettings" :placeholder="t('emergency_placeholder')" class="w-full p-3 rounded-xl text-xs outline-none shadow-sm">
-                    <a v-if="hospitalPhone" :href="'tel:' + hospitalPhone" class="block w-full bg-red-700 text-white text-center py-3 rounded-xl font-bold text-sm mt-2">📞 Call Now</a>
+                    <div class="space-y-2">
+                        <input v-model="hospitalPhone" @blur="saveSettings" :placeholder="t('emergency_placeholder')" class="w-full p-3 rounded-xl border-none text-xs outline-none shadow-sm">
+                        <a v-if="hospitalPhone" :href="'tel:' + hospitalPhone" class="block w-full bg-red-700 text-white text-center py-3 rounded-xl font-bold text-sm mt-2 shadow-md">📞 {{ t('call_now') }}</a>
+                    </div>
                 </div>
+
+                <div class="flex justify-between items-center py-3 border-b border-stone-100">
+                    <span class="text-stone-600 text-sm">{{ t('rename') }}</span>
+                    <input v-model="petName" @blur="savePetConfig" class="text-right text-stone-800 font-bold focus:outline-none bg-transparent">
+                </div>
+                <button @click="clearData" class="w-full text-stone-300 text-[10px] underline">{{ t('clear') }}</button>
             </div>
 
         </div>
@@ -136,30 +180,35 @@
                 const petAvatar = ref(localStorage.getItem('petAvatar') || null);
                 const dailyPhoto = ref(null);
                 const diet = ref({ eat: '', drink: '' });
-                const weather = ref({ temp: 24, desc: 'Fine', advice: 'Perfect for a walk' });
+                const weather = ref({ temp: 24, desc: '讀取中', advice: '請稍候' });
                 
                 // 語言字典
                 const i18n = {
                     zh: {
-                        slogan: '今天也是可愛的一天', home: '首頁', health: '健檢', charity: '愛心', settings: '設定',
+                        change: '更換', slogan: '今天也是可愛的一天', home: '首頁', health: '健檢', charity: '愛心', settings: '設定',
                         weather_title: '今日天氣預測', daily_photo: '今日萌照紀錄', click_upload: '點擊拍攝或上傳',
                         diet_log: '飲食登記', placeholder_eat: '吃了什麼？', placeholder_drink: '喝了多少水？',
                         save_btn: '儲存日記', ai_scan: 'AI 牙齒健康掃描', upload_scan: '上傳照片開始分析',
-                        result: '檢測結果', donation_total: '本月愛心捐助累計', add: '紀錄', org_list: '推薦機構',
-                        lang_setting: '語言設定', emergency: '緊急醫療設定', emergency_placeholder: '醫院電話號碼'
+                        result: '檢測結果', recommend_plan: '專屬護理方案', donation_total: '本月愛心累計', add: '紀錄', 
+                        org_list: '推薦機構', lang_setting: '語言設定', emergency: '緊急醫療設定', 
+                        emergency_placeholder: '醫院電話號碼', call_now: '撥打緊急電話', rename: '修改寶貝名稱', clear: '清除資料'
                     },
                     en: {
-                        slogan: 'Today is another cute day', home: 'Home', health: 'Health', charity: 'Charity', settings: 'Settings',
-                        weather_title: 'Weather Forecast', daily_photo: 'Daily Photo Log', click_upload: 'Click to capture/upload',
-                        diet_log: 'Diet Registry', placeholder_eat: 'What did they eat?', placeholder_drink: 'Water intake?',
+                        change: 'Edit', slogan: 'Today is another cute day', home: 'Home', health: 'Health', charity: 'Charity', settings: 'Settings',
+                        weather_title: 'Weather Forecast', daily_photo: 'Daily Photo Log', click_upload: 'Click to upload',
+                        diet_log: 'Diet Log', placeholder_eat: 'What did they eat?', placeholder_drink: 'Water intake?',
                         save_btn: 'Save Diary', ai_scan: 'AI Dental Scan', upload_scan: 'Upload photo to analyze',
-                        result: 'Result', donation_total: 'Monthly Donation Total', add: 'Add', org_list: 'Organizations',
-                        lang_setting: 'Language', emergency: 'Emergency Medical', emergency_placeholder: 'Hospital Phone Number'
+                        result: 'Result', recommend_plan: 'Recommended Plan', donation_total: 'Monthly Donations', add: 'Add', 
+                        org_list: 'Organizations', lang_setting: 'Language', emergency: 'Emergency Medical', 
+                        emergency_placeholder: 'Hospital phone', call_now: 'Call Now', rename: 'Rename Pet', clear: 'Clear Data'
                     }
                 };
 
                 const t = (key) => i18n[lang.value][key];
+                const changeLang = (l) => { lang.value = l; localStorage.setItem('lang', l); };
 
+                // 健檢邏輯
+                const imagePreview = ref(null);
                 const isScanning = ref(false);
                 const analysisResult = ref(null);
                 const donationTotal = ref(parseInt(localStorage.getItem('donationTotal') || '0'));
@@ -185,7 +234,14 @@
                     isScanning.value = true;
                     setTimeout(() => {
                         isScanning.value = false;
-                        analysisResult.value = { status: 'Healthy', level: 'Level 1', color: 'bg-green-500', desc: 'Keep up the good work!' };
+                        analysisResult.value = { 
+                            status: lang.value === 'zh' ? '輕微結石' : 'Mild Tartar', 
+                            level: 'Level 2', 
+                            color: 'bg-orange-400', 
+                            desc: '牙齦邊緣有少許沉積物', 
+                            product: 'Enzyme Bone', 
+                            plan: 'Brush twice a week' 
+                        };
                     }, 2000);
                 };
 
@@ -195,18 +251,20 @@
                     donationInput.value = null;
                 };
 
-                const saveSettings = () => {
-                    localStorage.setItem('lang', lang.value);
-                    localStorage.setItem('hospitalPhone', hospitalPhone.value);
-                };
-
+                const savePetConfig = () => localStorage.setItem('petName', petName.value);
+                const saveSettings = () => localStorage.setItem('hospitalPhone', hospitalPhone.value);
                 const saveLog = () => alert('Saved!');
-                const imagePreview = ref(null);
+                const clearData = () => { if(confirm('Clear all?')) { localStorage.clear(); location.reload(); } };
+
+                onMounted(() => {
+                    // 模擬天氣
+                    setTimeout(() => { weather.value = { temp: 26, desc: 'Sunny', advice: 'Great for walking' }; }, 1000);
+                });
 
                 return { 
-                    tab, lang, petName, petAvatar, dailyPhoto, diet, weather, t,
+                    tab, lang, petName, petAvatar, dailyPhoto, diet, weather, t, changeLang,
                     imagePreview, isScanning, analysisResult, donationTotal, donationInput, hospitalPhone, charityOrgs,
-                    handleAvatarUpload, handleDailyPhoto, handleFileUpload, saveSettings, addDonation, saveLog 
+                    handleAvatarUpload, handleDailyPhoto, handleFileUpload, savePetConfig, saveSettings, addDonation, saveLog, clearData 
                 };
             }
         }).mount('#app');
